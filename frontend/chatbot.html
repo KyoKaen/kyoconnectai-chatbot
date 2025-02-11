@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KyoConnectAI Chatbot</title>
+<!--     <link rel="icon" href="kyoconnectai_logo.jpg" type="image/jpeg"/> -->
+    <link rel="icon" href="../resource/kyoconnectai_logo.jpg" type="image/jpeg"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* Floating Toggle Button */
@@ -23,6 +25,25 @@
             justify-content: center;
             z-index: 1000;
             transition: transform 0.3s ease;
+            overflow: hidden;
+        }
+
+        .toggle-icon {
+            transition: opacity 0.3s ease;
+            position: absolute;
+        }
+
+        #chat-toggle img {
+            width: 70%;
+            height: 70%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .arrow-icon {
+            opacity: 0;
+            color: white;
+            font-size: 1.5em;
         }
 
         /* Chat Container */
@@ -110,11 +131,25 @@
         }
 
         .bot-message .message-icon {
-            left: -40px;
+            left: -35px;
         }
 
         .user-message .message-icon {
-            right: -40px;
+            right: -35px;
+        }
+
+        /* Bottom Arrow Indicator */
+        .chat-arrow-indicator {
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 12px solid white;
+            filter: drop-shadow(0 3px 2px rgba(0,0,0,0.15));
         }
 
         /* Input Area */
@@ -151,20 +186,6 @@
             border-top: 1px solid #eee;
         }
 
-        /* Bottom Arrow Indicator */
-        .chat-arrow-indicator {
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-top: 10px solid white;
-            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
-        }
-
         /* Loading Animation */
         .loading-dots {
             display: inline-block;
@@ -196,11 +217,12 @@
     </style>
 </head>
 <body>
-    <!-- Floating Toggle Button with Custom Icon -->
+    <!-- Floating Toggle Button -->
     <button id="chat-toggle">
         <img src="https://raw.githubusercontent.com/KyoKaen/kyoconnectai-chatbot/main/resource/chatbot-logo.jpg" 
-             class="header-icon"
+             class="toggle-icon"
              alt="Chatbot Logo">
+        <i class="fas fa-chevron-down toggle-icon arrow-icon"></i>
     </button>
 
     <!-- Chat Container -->
@@ -208,7 +230,6 @@
         <div class="chat-arrow-indicator"></div>
         <div class="chat-header">
             <div class="header-content">
-                <!-- Header Icon -->
                 <img src="https://raw.githubusercontent.com/KyoKaen/kyoconnectai-chatbot/main/resource/chatbot-logo.jpg" 
                      class="header-icon"
                      alt="Header Logo">
@@ -255,45 +276,46 @@
         toggleBtn.addEventListener('click', () => {
             isChatOpen = !isChatOpen;
             chatContainer.style.display = isChatOpen ? 'flex' : 'none';
+            
+            document.querySelector('#chat-toggle img').style.opacity = isChatOpen ? '0' : '1';
+            document.querySelector('#chat-toggle .arrow-icon').style.opacity = isChatOpen ? '1' : '0';
             toggleBtn.style.transform = isChatOpen ? 'rotate(180deg)' : 'rotate(0deg)';
         });
 
         closeBtn.addEventListener('click', () => {
             isChatOpen = false;
             chatContainer.style.display = 'none';
+            document.querySelector('#chat-toggle img').style.opacity = '1';
+            document.querySelector('#chat-toggle .arrow-icon').style.opacity = '0';
             toggleBtn.style.transform = 'rotate(0deg)';
         });
 
-        // Message Handling with Icons
+        // Message Handling
         function addMessage(text, isUser = false) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
             
-            // Add message icon
             const icon = document.createElement('img');
             icon.className = 'message-icon';
             icon.src = 'https://raw.githubusercontent.com/KyoKaen/kyoconnectai-chatbot/main/resource/chatbot-logo.jpg';
             icon.alt = 'Message Icon';
             
-            // Add text content
             const textContent = document.createElement('div');
             textContent.textContent = text;
             
-            // Assemble elements
             messageDiv.appendChild(textContent);
             messageDiv.appendChild(icon);
             chatBody.appendChild(messageDiv);
             chatBody.scrollTop = chatBody.scrollHeight;
         }
 
-        // Send Message with Loading State
+        // Send Message
         async function handleSend() {
             const message = chatInput.value.trim();
             if (message) {
                 addMessage(message, true);
                 chatInput.value = '';
                 
-                // Show loading state
                 const loadingDiv = document.createElement('div');
                 loadingDiv.className = 'message bot-message loading';
                 loadingDiv.innerHTML = `
@@ -317,7 +339,7 @@
             }
         }
 
-        // Mock API call
+        // Mock API
         async function mockApiCall(message) {
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
